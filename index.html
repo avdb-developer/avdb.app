@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>AVDB — The Adult Entertainment Reference Database</title>
+<meta name="description" content="AVDB is building the reference database for adult entertainment — performers, movies, videos, studios and platforms, built through structured curation and contributor verification.">
+<meta property="og:title" content="AVDB">
+<meta property="og:description" content="The adult entertainment reference database.">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='14'%20fill='%2317181d'/%3E%3Ctext%20x='32'%20y='43'%20font-family='Arial,sans-serif'%20font-size='26'%20font-weight='800'%20fill='%236E8CF0'%20text-anchor='middle'%3EAV%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    /* AVDB dark-panel tokens (see frontend/app/globals.css) */
+    /* Hex fallback first for browsers without oklch() support */
+    --dp:         #17181d;
+    --dp-mid:     #1b1d24;
+    --dp-fg:      #e7e9ec;
+    --dp-muted:   #a6aab2;
+    --dp-border:  rgba(255, 255, 255, 0.08);
+    --dp-accent:  #5e79f0;
+    --primary:    #6d8ff2;
+  }
+
+  @supports (color: oklch(0.5 0.1 250)) {
+    :root {
+      --dp:         oklch(0.16 0.010 250);
+      --dp-mid:     oklch(0.20 0.012 250);
+      --dp-fg:      oklch(0.92 0.008 250);
+      --dp-muted:   oklch(0.70 0.006 250);
+      --dp-border:  oklch(1 0 0 / 8%);
+      --dp-accent:  oklch(0.64 0.17 250);
+      --primary:    oklch(0.70 0.16 250);
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+
+  body {
+    background: var(--dp);
+    color: var(--dp-fg);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Discreet brand halo, matches the sign-in screen */
+  .halo {
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(50% 45% at 50% 28%, rgba(94, 121, 240, 0.20), transparent 72%);
+    background: radial-gradient(50% 45% at 50% 28%, oklch(0.58 0.17 250 / 0.20), transparent 72%);
+  }
+
+  /* Faint grain over the dark panel */
+  .grain {
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-image: radial-gradient(oklch(1 0 0 / 3%) 1px, transparent 1px);
+    background-size: 3px 3px;
+  }
+
+  main {
+    position: relative;
+    width: 100%;
+    max-width: 640px;
+    padding: 32px 24px 40px;
+    margin-top: clamp(24px, 8vh, 72px);
+    text-align: center;
+  }
+
+  /* Wordmark */
+  .logo {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    line-height: 1;
+    user-select: none;
+  }
+  .logo .word {
+    font-size: 44px;
+    font-weight: 800;
+    letter-spacing: -0.045em;
+  }
+  .logo .word .av { color: var(--primary); }
+  .logo .word .db { font-weight: 300; color: var(--dp-fg); }
+  .logo .tag {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--dp-muted);
+  }
+
+  /* Eyebrow badge */
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 40px;
+    padding: 6px 14px;
+    border: 1px solid var(--dp-border);
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--dp-accent);
+  }
+  .eyebrow .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--dp-accent);
+    box-shadow: 0 0 0 3px rgba(94, 121, 240, 0.18);
+    box-shadow: 0 0 0 3px oklch(0.64 0.17 250 / 0.18);
+  }
+
+  h1 {
+    margin: 22px 0 0;
+    font-size: clamp(28px, 4.5vw, 40px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    color: var(--dp-fg);
+  }
+  h1 span { color: var(--primary); }
+
+  p.lede {
+    margin: 16px auto 0;
+    max-width: 46ch;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--dp-muted);
+  }
+
+  /* Feature strip */
+  .features {
+    margin-top: 44px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    text-align: left;
+  }
+  .feature {
+    padding: 16px;
+    border: 1px solid var(--dp-border);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.025);
+    background: oklch(1 0 0 / 2.5%);
+  }
+  .feature svg {
+    width: 16px;
+    height: 16px;
+    color: var(--primary);
+    margin-bottom: 10px;
+  }
+  .feature h3 {
+    margin: 0 0 4px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--dp-fg);
+  }
+  .feature p {
+    margin: 0;
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: var(--dp-muted);
+  }
+
+  footer {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .age-gate {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--dp-muted);
+  }
+  .age-gate .badge {
+    border: 1px solid var(--dp-border);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-weight: 700;
+    color: var(--dp-fg);
+  }
+
+  .contact {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 0;
+  }
+  .contact:hover { color: var(--primary); }
+
+  .copyright {
+    font-size: 11px;
+    color: rgba(175, 177, 181, 0.6);
+    color: oklch(0.70 0.006 250 / 0.6);
+  }
+
+  @media (max-width: 520px) {
+    .features { grid-template-columns: 1fr; text-align: center; }
+    .feature { display: flex; flex-direction: column; align-items: center; }
+  }
+</style>
+</head>
+<body>
+  <div class="halo"></div>
+  <div class="grain"></div>
+
+  <main>
+    <div class="logo">
+      <span class="word"><span class="av">AV</span><span class="db">DB</span></span>
+      <span class="tag">Reference Database</span>
+      <span class="tag">For Adult Entertainment</span>
+    </div>
+
+    <div class="eyebrow"><span class="dot"></span>Early development</div>
+    
+    <h1>Building the <span>data infrastructure</span> of the adult entertainment industry.</h1>
+
+    <p class="lede">
+      Adult entertainment data is fragmented and inconsistent. Studios, platforms
+      and websites each use their own names, credits and metadata, making reliable
+      cross-referencing difficult.
+    </p>
+    <p class="lede">
+      AVDB is building the reference infrastructure connecting performers, movies,
+      studios and platforms through structured, verified metadata.
+    </p>
+
+    <div class="features">
+      <div class="feature">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <h3>Verified contributions</h3>
+        <p>Built through contributor verification and structured curation.</p>
+      </div>
+      <div class="feature">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg>
+        <h3>Complete credits</h3>
+        <p>Cast and crew — role, department, credit — linked across every studio, network and platform.</p>
+      </div>
+      <div class="feature">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <h3>Contributor-driven</h3>
+        <p>Anyone can contribute. Every contribution is reviewed before publication.</p>
+      </div>
+    </div>
+
+    <footer>
+      <div class="age-gate">
+        <span class="badge">18+</span>
+        This site indexes adult content metadata. Restricted to adults of legal age.
+      </div>
+      <div class="copyright">© 2026 AVDB — <a class="contact" href="mailto:contact@avdb.app">Contact us</a></div>
+    </footer>
+  </main>
+</body>
+</html>
